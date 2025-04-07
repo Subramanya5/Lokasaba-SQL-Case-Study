@@ -33,7 +33,7 @@ This case study explores the dataset through the following analytical questions:
 7. Find the percentage of candidates who received more than 50% votes in their constituency.
 8. Find the total number of constituencies in each state where the margin is greater than 10,000 votes.
 9. Find the party with the highest average votes per candidate.
-10. Find all candidates and their winning status (LEFT JOIN with Constituency).
+10. Find all candidates and their winning status.
 11. Find all constituencies and their respective parties.
 12. Find candidates who contested and the details of their constituency.
 13. Find total votes per state, ensuring all states are listed.
