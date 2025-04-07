@@ -1,0 +1,51 @@
+-- Table: StateID (Reference Table)
+CREATE TABLE StateID (
+    StateID VARCHAR(10) PRIMARY KEY,
+    State VARCHAR(255) NOT NULL
+);
+
+-- Table: NoOfWins
+CREATE TABLE NoOfWins (
+    Party VARCHAR(255) UNIQUE,
+    Won INT,
+    PartyID INT PRIMARY KEY
+);
+
+-- Table: Constituency
+CREATE TABLE Constituency (
+    ConstituencyID VARCHAR(10) UNIQUE,
+    ParliamentConstituency VARCHAR(300) UNIQUE,
+    ConstituencyName VARCHAR(300),
+    WinningCandidate VARCHAR(255),
+    TotalVotes INT,
+    Margin INT PRIMARY KEY,
+    PartyID INT,
+    FOREIGN KEY (PartyID) REFERENCES Noofwins(PartyID)
+    );
+
+-- Table: CandidateDetails
+CREATE TABLE CandidateDetails (
+    Candidate VARCHAR(255),
+    Party VARCHAR(255),
+    EVMVotes INT,
+    PostalVotes INT,
+    TotalVotes INT,
+    PercentageVotes FLOAT,
+    ConstituencyID VARCHAR(100)
+    );
+
+-- Table: Results
+CREATE TABLE Results (
+    Constituency VARCHAR(300),
+    ConstituencyNo INT,
+    ParliamentConstituency VARCHAR(300),
+    LeadingCandidate VARCHAR(255),
+    TrailingCandidate VARCHAR(255),
+    Margin INT PRIMARY KEY,
+    Status VARCHAR(100),
+    StateID VARCHAR(10),
+    State VARCHAR(255),
+    FOREIGN KEY (MARGIN) REFERENCES Constituency(Margin),
+     FOREIGN KEY (ParliamentConstituency) REFERENCES Constituency(ParliamentConstituency),
+     FOREIGN KEY (stateid) REFERENCES stateid(stateid)
+    );
