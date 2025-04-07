@@ -1,0 +1,107 @@
+#1. Find the top 3 parties with the highest number of wins.
+SELECT Party 
+FROM NoOfWins 
+ORDER BY Won DESC 
+LIMIT 3;
+
+#2. Find the total votes received by each party in all constituencies and display only those with more than 500,000 votes.
+SELECT Party, SUM(TotalVotes) AS TotalVotesReceived
+FROM CandidateDetails
+GROUP BY Party
+HAVING SUM(TotalVotes) > 500000;
+
+#3. Find the candidates who received more than the average number of votes.
+SELECT WinningCandidate, Margin 
+FROM Constituency 
+WHERE Margin = (SELECT MAX(Margin) FROM Constituency);
+
+#4. Find constituencies where the margin of victory is less than 5,000 votes.
+SELECT ConstituencyName, WinningCandidate, Margin 
+FROM Constituency 
+WHERE Margin < 5000;
+
+#5. Find the state with the highest number of constituencies.
+SELECT r.StateID, s.State, COUNT(DISTINCT r.Constituency) AS TotalConstituencies
+FROM Results r
+JOIN StateID s ON r.StateID = s.StateID
+GROUP BY r.StateID, s.State
+ORDER BY TotalConstituencies DESC
+LIMIT 1;
+
+#6. Find the candidates who received the maximum percentage of votes in their constituency.
+SELECT Candidate, Party, PercentageVotes, ConstituencyID
+FROM CandidateDetails c
+WHERE PercentageVotes = (
+    SELECT MAX(PercentageVotes)
+    FROM CandidateDetails
+    WHERE ConstituencyID = c.ConstituencyID
+);
+
+#7. Find the percentage of candidates who received more than 50% votes in their constituency.
+SELECT (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM CandidateDetails)) AS PercentageAbove50
+FROM CandidateDetails 
+WHERE PercentageVotes > 50;
+
+#8. Find the total number of constituencies in each state where the margin is greater than 10,000 votes.
+SELECT StateID, COUNT(*) AS TotalConstituencies
+FROM Results 
+WHERE ConstituencyNo IN (
+    SELECT ConstituencyID FROM Constituency WHERE Margin > 10000
+)
+GROUP BY StateID;
+
+#9. Find the party with the highest average votes per candidate.
+SELECT Party
+FROM CandidateDetails
+GROUP BY Party
+HAVING AVG(TotalVotes) = (
+    SELECT MAX(AverageVotes) 
+    FROM (SELECT Party, AVG(TotalVotes) AS AverageVotes FROM CandidateDetails GROUP BY Party) AS SubQuery
+);
+
+#10. Find all candidates and their winning status (LEFT JOIN with Constituency).
+
+SELECT CD.Candidate, CD.Party, C.WinningCandidate, 
+    CASE WHEN CD.Candidate = C.WinningCandidate THEN 'Winner' ELSE 'Loser' END AS Status
+FROM CandidateDetails CD
+LEFT JOIN Constituency C ON CD.ConstituencyID = C.ConstituencyID;
+
+#11. Find all constituencies and their respective parties.
+SELECT C.ConstituencyName, N.Party, N.Won
+FROM Constituency C
+RIGHT JOIN NoOfWins N ON C.PartyID = N.PartyID;
+
+#12. Find candidates who contested and the details of their constituency
+SELECT CD.Candidate, CD.Party, C.ConstituencyName, C.ParliamentConstituency
+FROM CandidateDetails CD
+INNER JOIN Constituency C ON CD.ConstituencyID = C.ConstituencyID;
+
+#13. Find total votes per state, ensuring all states are listed 
+SELECT Candidate, Party, PercentageVotes, ConstituencyID
+FROM CandidateDetails c
+WHERE PercentageVotes = (
+    SELECT MAX(PercentageVotes)
+    FROM CandidateDetails
+    WHERE ConstituencyID = c.ConstituencyID
+);
+
+
+
+#14. Generate all possible pairs of candidates from different parties
+SELECT C1.Candidate AS Candidate1, C1.Party AS Party1, C2.Candidate AS Candidate2, C2.Party AS Party2
+FROM CandidateDetails C1
+CROSS JOIN CandidateDetails C2
+WHERE C1.Party <> C2.Party;
+
+#15. Find the state with the highest number of constituencies won by a single party.
+SELECT StateID, state
+FROM Results
+WHERE StateID IN (
+    SELECT StateID 
+    FROM Results
+    GROUP BY StateID
+    HAVING COUNT(DISTINCT Constituency) = (
+        SELECT MAX(TotalCount)
+        FROM (SELECT StateID, COUNT(DISTINCT Constituency) AS TotalCount FROM Results GROUP BY StateID) AS SubQuery
+    )
+);
